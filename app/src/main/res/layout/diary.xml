@@ -1,31 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.design.widget.CoordinatorLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+xmlns:android="http://schemas.android.com/apk/res/android"
+xmlns:app="http://schemas.android.com/apk/res-auto"
+xmlns:tools="http://schemas.android.com/tools"
+android:layout_width="match_parent"
+android:layout_height="match_parent"
+android:fitsSystemWindows="true"
+tools:context="com.example.a11962.touch.MainActivity">
+
+<LinearLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
-    tools:context="com.example.a11962.touch.EditorActivity">
+    android:orientation="vertical">
 
-    <LinearLayout
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/diaryToolbar"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        android:theme="@style/AppTheme.AppBarOverlay"
+        app:title="日记"
+        app:popupTheme="@style/AppTheme.PopupOverlay"/>
 
-        <android.support.design.widget.FloatingActionButton
-            android:id="@+id/toEdit"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="16dp"
-            android:layout_gravity="center"
-            android:src="@mipmap/add"
-            app:backgroundTint="#30469b"
-            app:borderWidth="0dp"
-            app:elevation="6dp"
-            app:fabSize="normal"
-            app:layout_anchorGravity="bottom|right"
-            app:pressedTranslationZ="12dp"
-            app:rippleColor="#a6a6a6" />
-    </LinearLayout>
+    <ListView
+        android:id="@+id/diary_list"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:scrollbars="none"
+        android:divider="#ffffff" >
+    </ListView>
+
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/toEdit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:layout_gravity="center"
+        android:src="@mipmap/add"
+        app:backgroundTint="#30469b"
+        app:borderWidth="0dp"
+        app:elevation="6dp"
+        app:fabSize="normal"
+        app:layout_anchorGravity="bottom|right"
+        app:pressedTranslationZ="12dp"
+        app:rippleColor="#a6a6a6" />
+
+</LinearLayout>
+
 </android.support.design.widget.CoordinatorLayout>
+

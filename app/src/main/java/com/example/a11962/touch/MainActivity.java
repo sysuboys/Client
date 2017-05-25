@@ -2,15 +2,20 @@ package com.example.a11962.touch;
 
 
 
+import android.content.Intent;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.view.Window;
 
 import com.ashokvarma.bottomnavigation.BottomNavigationBar;
 import com.ashokvarma.bottomnavigation.BottomNavigationItem;
+import com.example.a11962.touch.polling.BgService;
+import com.example.a11962.touch.polling.PollingService;
+import com.example.a11962.touch.polling.PollingUtils;
 
 import java.util.ArrayList;
 
@@ -19,6 +24,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationB
 
     private ArrayList<Fragment> fragments;
     private BottomNavigationBar bottomNavigationBar;
+    private Toolbar maintoolbar;
 
     private FriendFragment friendFragment;
     private DiaryFragment diaryFragment;
@@ -29,6 +35,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationB
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_main);
+
         //设置底部导航栏特性
         bottomNavigationBar = (BottomNavigationBar)findViewById(R.id.bottom_navigation_bar);
         bottomNavigationBar.setMode(BottomNavigationBar.MODE_FIXED);
@@ -43,7 +50,14 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationB
         fragments = getFragments();
         setDefaultFragment();
         bottomNavigationBar.setTabSelectedListener(this);
+
+        //Start polling service
+        System.out.println("Start polling service...");
+        PollingUtils.startPollingService(this, 5, PollingService.class, PollingService.ACTION);
+
+
     }
+
     /** * 设置默认的Fragment为friend*/
     private void setDefaultFragment() {
         FragmentManager fm = getSupportFragmentManager();
@@ -100,5 +114,16 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationB
     @Override
     public void onTabReselected(int position) {
 
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        //根据返回的requestCode，决定呈现好友或者日记页
+        if (requestCode == 0) {
+            bottomNavigationBar.selectTab(0);
+        }
+        if (requestCode == 1) {
+            bottomNavigationBar.selectTab(1);
+        }
     }
 }

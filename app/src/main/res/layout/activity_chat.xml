@@ -20,7 +20,6 @@
             android:background="?attr/colorPrimary"
             android:theme="@style/AppTheme.AppBarOverlay"
             app:title="首页"
-            app:logo="@mipmap/ic_launcher"
             app:popupTheme="@style/AppTheme.PopupOverlay"/>
 
         <ListView

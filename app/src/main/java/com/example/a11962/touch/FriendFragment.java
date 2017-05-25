@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,6 +28,7 @@ public class FriendFragment extends Fragment {
     private ListView friendview;
     private FriendAdapter friendAdapter;
     private List<Friend> friList;
+    private Toolbar friToolbar;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -36,6 +39,10 @@ public class FriendFragment extends Fragment {
         friendAdapter=new FriendAdapter(friList,getActivity());
         friendview.setAdapter(friendAdapter);
         initClick();
+
+        friToolbar = (Toolbar) friendLayout.findViewById(R.id.friendToolbar);
+        AppCompatActivity activity = (AppCompatActivity) getActivity();
+        activity.setSupportActionBar(friToolbar);
         return friendLayout;
     }
     /*设置listview点击事件*/
