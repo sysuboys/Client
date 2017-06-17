@@ -16,6 +16,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.example.a11962.touch.network.HttpUtils;
 import com.hdl.mricheditor.bean.CamaraRequestCode;
 import com.hdl.mricheditor.view.MRichEditor;
 
@@ -23,9 +24,16 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.HashSet;
 import java.util.Set;
+
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 public class EditorActivity extends AppCompatActivity {
 
@@ -115,6 +123,7 @@ public class EditorActivity extends AppCompatActivity {
             Toast.makeText(this, "标题不可为空", Toast.LENGTH_SHORT).show();
             return;
         }
+
         richEditor.setHtmlTitle(title);
         String htmlStr = richEditor.createHtmlStr();
 
@@ -136,6 +145,11 @@ public class EditorActivity extends AppCompatActivity {
             FileOutputStream outputStream = new FileOutputStream(myDiary);
             outputStream.write(htmlStr.getBytes());
             outputStream.close();
+
+            //上传标题
+
+
+
 /*
             //检查文件内容
             String content = "";
@@ -160,8 +174,36 @@ public class EditorActivity extends AppCompatActivity {
         } catch (Exception e) {
 
         }
+        finish();
 
+    }
 
+    public class UploadThread extends Thread {
+        private File file;
+        public final MediaType MEDIA_TYPE_HTML
+                = MediaType.parse("text/html; charset=utf-8");
+        private String url = "http://172.18.70.248:8888";
+
+        private final OkHttpClient client = new OkHttpClient();
+        UploadThread(File file) {
+            this.file = file;
+        }
+        @Override
+        public void run() {
+            try {
+                Request request = new Request.Builder()
+                        .url(url)
+                        .post(RequestBody.create(MEDIA_TYPE_HTML, file))
+                        .build();
+
+                Response response = client.newCall(request).execute();
+                if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
+
+                System.out.println(response.body().string());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
 

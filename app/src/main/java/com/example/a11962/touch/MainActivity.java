@@ -16,6 +16,7 @@ import com.ashokvarma.bottomnavigation.BottomNavigationItem;
 import com.example.a11962.touch.polling.BgService;
 import com.example.a11962.touch.polling.PollingService;
 import com.example.a11962.touch.polling.PollingUtils;
+import com.example.a11962.touch.websocket.InviteService;
 
 import java.util.ArrayList;
 
@@ -28,6 +29,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationB
 
     private FriendFragment friendFragment;
     private DiaryFragment diaryFragment;
+
 
 
     @Override
@@ -51,10 +53,10 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationB
         setDefaultFragment();
         bottomNavigationBar.setTabSelectedListener(this);
 
-        //Start polling service
-        System.out.println("Start polling service...");
-        PollingUtils.startPollingService(this, 5, PollingService.class, PollingService.ACTION);
 
+
+        //Start invite service
+        startService(new Intent(this, InviteService.class));
 
     }
 

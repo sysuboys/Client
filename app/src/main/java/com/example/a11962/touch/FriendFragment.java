@@ -1,7 +1,9 @@
 package com.example.a11962.touch;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
@@ -13,11 +15,18 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.example.a11962.touch.friends.Friend;
-import com.example.a11962.touch.friends.FriendAdapter;
+
+import com.example.a11962.touch.adapters.Friend;
+import com.example.a11962.touch.adapters.FriendAdapter;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by 11962 on 2017/5/20.
@@ -34,6 +43,7 @@ public class FriendFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View friendLayout = inflater.inflate(R.layout.friends, container, false);
+
         friendview= (ListView) friendLayout.findViewById(R.id.friend_list);
         friList= getFriendList();
         friendAdapter=new FriendAdapter(friList,getActivity());
@@ -43,6 +53,8 @@ public class FriendFragment extends Fragment {
         friToolbar = (Toolbar) friendLayout.findViewById(R.id.friendToolbar);
         AppCompatActivity activity = (AppCompatActivity) getActivity();
         activity.setSupportActionBar(friToolbar);
+
+
         return friendLayout;
     }
     /*设置listview点击事件*/
@@ -63,14 +75,22 @@ public class FriendFragment extends Fragment {
 
     /*从文件中读取好友列表*/
     private List<Friend> getFriendList() {
-        //TODO 从好友文件中读取List
-        List<Friend> friList=new ArrayList<>();
-        for(int i=0;i<10;i++){
-            Friend stu=new Friend();
-            stu.setName("name"+i);
-            friList.add(stu);
+        //从保存的好友信息中读取好友列表
+        SharedPreferences preferences = this.getActivity().getSharedPreferences("info", Context.MODE_PRIVATE);
+        Set<String> friSet =
+                new HashSet<String>(preferences.getStringSet("friends", new HashSet<String>()));
+        List<Friend> friendList = new ArrayList<Friend>();
+        if (friSet != null) {
+            for (String s : friSet) {
+                if (s != null) {
+                    Friend fris = new Friend();
+                    fris.setName(s);
+                    friendList.add(fris);
+                }
+            }
         }
-        return friList;
+
+        return friendList;
     }
 
     @Override

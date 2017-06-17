@@ -31,6 +31,7 @@ public class ChatActivity extends AppCompatActivity {
     private ListView listView;
     private MsgAdapter adapter;
     private FloatingActionButton toTouch;
+    private String friName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,7 +40,7 @@ public class ChatActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         Intent intent = getIntent();
         //从intent中找到对应的好友名字
-        String friName = intent.getStringExtra("friendName");
+        friName = intent.getStringExtra("friendName");
         toolbar.setTitle(friName);
         setSupportActionBar(toolbar);
         getSupportActionBar().setHomeButtonEnabled(true); //设置返回键可用
@@ -55,7 +56,8 @@ public class ChatActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 //点击任一好友跳转到好友交流界面, 发送好友名字到对应Activity
-                Intent intent = new Intent(ChatActivity.this, TouchActivity.class);
+                Intent intent = new Intent(ChatActivity.this, SelectActivity.class);
+                intent.putExtra("friend", friName);
                 startActivityForResult(intent, Activity.RESULT_FIRST_USER);
             }
         });

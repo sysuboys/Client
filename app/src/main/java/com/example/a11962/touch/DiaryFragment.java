@@ -15,11 +15,12 @@ import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.example.a11962.touch.diaries.DiaryAdapter;
-import com.example.a11962.touch.friends.FriendAdapter;
+
+import com.example.a11962.touch.adapters.DiaryAdapter;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -60,7 +61,21 @@ public class DiaryFragment extends Fragment {
         AppCompatActivity activity = (AppCompatActivity) getActivity();
         activity.setSupportActionBar(diaryToolbar);
         initList();
+        initClick();
         return diaryLayout;
+    }
+    /*初始化*/
+    public void initClick() {
+        diaryView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+                //点击任一好友跳转到好友交流界面, 发送好友名字到对应Activity
+                Intent intent = new Intent(getActivity(), ShowActivity.class);
+                intent.putExtra("title", diaryList.get(position));
+                startActivityForResult(intent, Activity.RESULT_FIRST_USER);
+            }
+
+        });
     }
     /*初始化日记列表视图*/
     public void initList() {
