@@ -11,6 +11,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.daasuu.bl.BubbleLayout;
 import com.example.a11962.touch.ChatActivity;
 import com.example.a11962.touch.R;
 
@@ -37,9 +38,9 @@ public class MsgAdapter extends ArrayAdapter<Msg>
         if (convertView == null) {
             view = LayoutInflater.from(getContext()).inflate(resourceId, null);
             viewHolder = new ViewHolder();
-            viewHolder.leftLayout = (LinearLayout) view
+            viewHolder.leftLayout = (BubbleLayout) view
                     .findViewById(R.id.left_layout);
-            viewHolder.rightLayout = (LinearLayout) view
+            viewHolder.rightLayout = (BubbleLayout) view
                     .findViewById(R.id.right_layout);
             viewHolder.leftTextView = (TextView) view
                     .findViewById(R.id.left_msg);
@@ -65,8 +66,8 @@ public class MsgAdapter extends ArrayAdapter<Msg>
 
     private class ViewHolder {
 
-        LinearLayout leftLayout;
-        LinearLayout rightLayout;
+        BubbleLayout leftLayout;
+        BubbleLayout rightLayout;
 
         TextView leftTextView;
         TextView rightTextView;

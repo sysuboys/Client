@@ -2,6 +2,7 @@ package com.example.a11962.touch;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -31,6 +32,7 @@ public class ChatActivity extends AppCompatActivity {
     private ListView listView;
     private MsgAdapter adapter;
     private FloatingActionButton toTouch;
+    private String friName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,7 +41,7 @@ public class ChatActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         Intent intent = getIntent();
         //从intent中找到对应的好友名字
-        String friName = intent.getStringExtra("friendName");
+        friName = intent.getStringExtra("friendName");
         toolbar.setTitle(friName);
         setSupportActionBar(toolbar);
         getSupportActionBar().setHomeButtonEnabled(true); //设置返回键可用
@@ -55,8 +57,10 @@ public class ChatActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 //点击任一好友跳转到好友交流界面, 发送好友名字到对应Activity
-                Intent intent = new Intent(ChatActivity.this, TouchActivity.class);
-                startActivityForResult(intent, Activity.RESULT_FIRST_USER);
+                Intent intent = new Intent(ChatActivity.this, SelectActivity.class);
+                intent.putExtra("friendName", friName);
+                intent.putExtra("from", "ChatActivity");
+                startActivityForResult(intent, 1);
             }
         });
     }
@@ -84,17 +88,36 @@ public class ChatActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Toast.makeText(ChatActivity.this,
                         msgList.get(i).getContent(), Toast.LENGTH_SHORT).show();
+                //点击日记显示日记内容
+                Intent intent = new Intent(ChatActivity.this, ShowActivity.class);
+                intent.putExtra("title", msgList.get(i).getContent());
+                if (msgList.get(i).getType() == Msg.TYPE_RECEIVE)
+                    intent.putExtra("suffix", friName);
+                else
+                    intent.putExtra("suffix", "myDiary");
+                intent.putExtra("from", "ChatActivity");
+                startActivityForResult(intent, Activity.RESULT_FIRST_USER);
             }
         });
     }
     //得到初始化信息
     private void initMsg()
     {
-        Msg msg1 = new Msg("hello sealong", Msg.TYPE_RECEIVE);
-        msgList.add(msg1);
-        Msg msg2 = new Msg("hello peipei", Msg.TYPE_SEND);
-        msgList.add(msg2);
-        Msg msg = new Msg("What are you doing", Msg.TYPE_RECEIVE);
-        msgList.add(msg);
+        SharedPreferences record = getSharedPreferences(friName, MODE_PRIVATE);
+        String type = record.getString("type", null);
+        String list = record.getString("diaries", null);
+        if (type == null || list == null)
+            return;
+        String[] types = type.split(":");
+        String[] lists = list.split(":");
+        for (int i = 0; i < types.length; i++) {
+            if (!lists[i].isEmpty()) {
+                if (types[i].equals("0")) {
+                    msgList.add(new Msg(lists[i], Msg.TYPE_RECEIVE));
+                } else {
+                    msgList.add(new Msg(lists[i], Msg.TYPE_SEND));
+                }
+            }
+        }
     }
 }

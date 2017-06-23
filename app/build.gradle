@@ -27,6 +27,7 @@ dependencies {
     compile 'com.ashokvarma.android:bottom-navigation-bar:1.4.1'
     compile 'com.android.support:recyclerview-v7:24.3.1'
     compile 'com.huangdali:mricheditor:1.0.1'
-    compile 'com.huangdali:myhttputils:2.0.2'
+    compile 'com.squareup.okhttp3:okhttp:3.5.0'
     compile 'com.android.support:cardview-v7:24.1.1'
+    compile 'com.daasuu:BubbleLayout:1.0.0'
 }

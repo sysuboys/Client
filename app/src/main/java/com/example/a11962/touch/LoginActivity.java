@@ -3,7 +3,10 @@ package com.example.a11962.touch;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -29,8 +32,24 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.example.a11962.touch.adapters.Friend;
+import com.example.a11962.touch.network.HttpUtils;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
+import okhttp3.FormBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 import static android.Manifest.permission.READ_CONTACTS;
 
@@ -66,6 +85,13 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        if (SessionUtil.SESSIONID != null) {
+            Intent intent = new Intent(this, MainActivity.class);
+            startActivity(intent);
+            finish();
+        }
+
         // Set up the login form.
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
         populateAutoComplete();
@@ -192,12 +218,13 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
     private boolean isEmailValid(String email) {
         //TODO: Replace this with your own logic
-        return email.contains("@");
+        return true;
     }
 
     private boolean isPasswordValid(String password) {
         //TODO: Replace this with your own logic
-        return password.length() > 4;
+        return true;
+        //return password.length() > 4;
     }
 
     /**
@@ -298,6 +325,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         private final String mEmail;
         private final String mPassword;
+        public final String url = "http://172.18.69.141:8080/login";
+        public String friends;
 
         UserLoginTask(String email, String password) {
             mEmail = email;
@@ -306,25 +335,58 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         @Override
         protected Boolean doInBackground(Void... params) {
-            // TODO: attempt authentication against a network service.
-
             try {
-                // Simulate network access.
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
+
+                //String loginJson = "{\"username\":\"" + mEmail + "\", \"password':\"" + mPassword + "\"}";
+                //HttpUtils loginHttp = new HttpUtils();
+                OkHttpClient client = new OkHttpClient();
+                //friends = loginHttp.loginAttempt(url, mEmail, mPassword);
+
+                RequestBody body = new FormBody.Builder().
+                        add("username", mEmail).
+                        add("password", mPassword).build();
+
+                Request request = new Request.Builder().url(url).post(body).build();
+
+                //得到响应
+                Response response = client.newCall(request).execute();
+                System.out.println(response.toString());
+                List<String> cookies = response.headers().values("Set-Cookie");
+                if (cookies != null) {
+                    String session = cookies.get(0);
+                    SessionUtil.SESSIONID =  session.substring(0, session.indexOf(";"));
+                }
+
+                friends = response.body().string();
+                saveInfo();
+                return true;
+            } catch (IOException e) {
+                System.out.println(e.toString());
                 return false;
             }
 
-            for (String credential : DUMMY_CREDENTIALS) {
-                String[] pieces = credential.split(":");
-                if (pieces[0].equals(mEmail)) {
-                    // Account exists, return true if the password matches.
-                    return pieces[1].equals(mPassword);
-                }
-            }
+        }
+        private void saveInfo() {
+            //保存包括用户名、好友名的基本信息
+            SharedPreferences preferences = getSharedPreferences("info", MODE_PRIVATE);
+            SharedPreferences.Editor editor = preferences.edit();
+            try {
+                if (friends != null) {
+                    JSONObject jsonObject = new JSONObject(friends);
+                    String username = jsonObject.getString("username");
+                    editor.putString("username", username);
+                    Set<String> friends = new HashSet<>();
+                    JSONArray arr = jsonObject.getJSONArray("friends");
+                    for (int i = 0; i < arr.length(); i++) {
+                        String fri = (String)arr.get(i);
+                        friends.add(fri);
+                    }
+                    editor.putStringSet("friends", friends).commit();
 
-            // TODO: register the new account here.
-            return true;
+                }
+            } catch (JSONException e) {
+
+            }
         }
 
         @Override
@@ -333,6 +395,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             showProgress(false);
 
             if (success) {
+                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                startActivity(intent);
                 finish();
             } else {
                 mPasswordView.setError(getString(R.string.error_incorrect_password));

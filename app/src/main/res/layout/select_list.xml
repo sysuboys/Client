@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical">
+
+<RelativeLayout
+    android:id="@+id/search_user_list_item"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="5.0dip"
+    android:layout_marginLeft="12.599976dip"
+    android:layout_marginRight="12.599976dip"
+    android:layout_marginTop="5.0dip"
+    android:gravity="center"
+    android:background="#AAAAAA">
+
+    <LinearLayout
+        android:id="@+id/linear_layout_up"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10.0dip"
+        android:gravity="center"
+        android:orientation="horizontal" >
+
+
+
+        <ImageView
+            android:layout_width="10dip"
+            android:layout_height="10dip"
+            android:adjustViewBounds="false" />
+
+        <TextView
+            android:id="@+id/select_diary_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="2.0"
+            android:text="名称"
+            android:textColor="#ff323232"
+            android:textSize="16.0sp"
+            android:typeface="monospace" />
+
+        <RadioButton
+            android:id="@+id/select_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:focusable="false"
+            android:text="" />
+
+    </LinearLayout>
+</RelativeLayout>
+
+</LinearLayout>

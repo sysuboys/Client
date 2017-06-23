@@ -16,6 +16,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.example.a11962.touch.network.HttpUtils;
 import com.hdl.mricheditor.bean.CamaraRequestCode;
 import com.hdl.mricheditor.view.MRichEditor;
 
@@ -23,9 +24,17 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.HashSet;
 import java.util.Set;
+
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 public class EditorActivity extends AppCompatActivity {
 
@@ -65,7 +74,7 @@ public class EditorActivity extends AppCompatActivity {
                 finish();
                 break;
         }
-        return super.onOptionsItemSelected(item);
+        return true;
     }
     /*Toolbar最右边item的点击事件*/
     private Toolbar.OnMenuItemClickListener onMenuItemClick = new Toolbar.OnMenuItemClickListener() {
@@ -76,6 +85,10 @@ public class EditorActivity extends AppCompatActivity {
                 case R.id.action_settings:
                     msg += "保存成功";
                     save();
+                    Intent intent = new Intent(EditorActivity.this, MainActivity.class);
+                    intent.putExtra("Edit", true);
+                    startActivityForResult(intent, 1);
+                    finishAffinity();
                     break;
             }
 
@@ -115,6 +128,7 @@ public class EditorActivity extends AppCompatActivity {
             Toast.makeText(this, "标题不可为空", Toast.LENGTH_SHORT).show();
             return;
         }
+
         richEditor.setHtmlTitle(title);
         String htmlStr = richEditor.createHtmlStr();
 
@@ -136,6 +150,13 @@ public class EditorActivity extends AppCompatActivity {
             FileOutputStream outputStream = new FileOutputStream(myDiary);
             outputStream.write(htmlStr.getBytes());
             outputStream.close();
+
+            new UploadThread(myDiary, filename).start();
+
+            //上传标题
+
+
+
 /*
             //检查文件内容
             String content = "";
@@ -161,7 +182,44 @@ public class EditorActivity extends AppCompatActivity {
 
         }
 
+    }
 
+    public class UploadThread extends Thread {
+        private File file;
+        private String fileName;
+        public final MediaType MEDIA_TYPE_HTML
+                = MediaType.parse("text/html; charset=utf-8");
+        private String url = "http://172.18.69.141:8080/upload";
+
+        private final OkHttpClient client = new OkHttpClient();
+        UploadThread(File file, String fileName) {
+            this.file = file;
+            this.fileName = fileName;
+        }
+        @Override
+        public void run() {
+            try {
+                MultipartBody.Builder builder = new MultipartBody.Builder();
+                builder.setType(MultipartBody.FORM);
+                RequestBody filebody = RequestBody.create(MEDIA_TYPE_HTML, file);
+                //分块上传文件
+                RequestBody body = new MultipartBody.Builder()
+                        .setType(MultipartBody.FORM)
+                        .addFormDataPart("file", fileName, filebody)
+                        .build();
+                Request request = new Request.Builder()
+                        .url(url)
+                        .post(body)
+                        .addHeader("Cookie", SessionUtil.SESSIONID)
+                        .build();
+                Response response = client.newCall(request).execute();
+                if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
+
+                System.out.println(response.body().string());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
 

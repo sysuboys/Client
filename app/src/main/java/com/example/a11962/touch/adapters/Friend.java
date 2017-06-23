@@ -1,4 +1,4 @@
-package com.example.a11962.touch.friends;
+package com.example.a11962.touch.adapters;
 
 /**
  * Created by 11962 on 2017/5/21.
