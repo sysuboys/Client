@@ -1,10 +1,12 @@
 package com.example.a11962.touch;
 
 import android.content.Intent;
+import android.os.Looper;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.RadioButton;
@@ -62,12 +64,9 @@ public class SelectActivity extends AppCompatActivity {
         friendName = intent.getStringExtra("friendName");
         from = intent.getStringExtra("from");
 
-        if (friendName != null) {
-            //如果收到来自好友邀请，显示dialog
-            selectToolbar.setTitle(friendName);
-        }
-
         setSupportActionBar(selectToolbar);
+        getSupportActionBar().setHomeButtonEnabled(true); //设置返回键可用
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         toTouch.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -82,7 +81,6 @@ public class SelectActivity extends AppCompatActivity {
                         break;
                     }
                 }
-                Toast.makeText(SelectActivity.this, title, Toast.LENGTH_SHORT).show();
                 //根据消息的来源选择对应的url
                 if (from.equals("ChatActivity")) {
                     new PreThread("ws://172.18.69.141:8080/invite").start();
@@ -92,6 +90,16 @@ public class SelectActivity extends AppCompatActivity {
 
             }
         });
+    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            //返回上一级
+            case android.R.id.home:
+                finish();
+                break;
+        }
+        return true;
     }
 
     //得到日记选择列表
@@ -174,6 +182,12 @@ public class SelectActivity extends AppCompatActivity {
                             startActivityForResult(intent, 0);
                             mWebSocket.close(0000, "success to close by client");
 
+                        } else {
+                            String error = resJson.getString("error");
+                            Looper.prepare();
+                            Toast.makeText(SelectActivity.this, error, Toast.LENGTH_SHORT).show();
+                            Looper.loop();
+                            mWebSocket.close(1000, "close by user");
                         }
                     } catch (JSONException e) {
 

@@ -9,20 +9,17 @@ import android.content.Intent;
 import android.media.RingtoneManager;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
-import android.util.Log;
 
 import com.example.a11962.touch.ChatUtils;
+import com.example.a11962.touch.MainActivity;
 import com.example.a11962.touch.R;
 import com.example.a11962.touch.SelectActivity;
 import com.example.a11962.touch.SessionUtil;
-import com.example.a11962.touch.TouchActivity;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.TimeUnit;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -32,19 +29,16 @@ import okhttp3.WebSocketListener;
 import okio.ByteString;
 
 /**
- * Created by 11962 on 2017/5/26.
+ * Created by 11962 on 2017/6/24.
  */
-public class InviteService extends Service {
-
-    public static final String ACTION = "com.example.a11962.touch.websocket.InviteService";
-
+public class AddService extends Service {
     private Notification mNotification;
     private NotificationManager mManager;
-    private WebSocket mWebSocket = null;
+    public static WebSocket mWebSocket = null;
     private int msgCount = 0; //消息发送次数
     private Timer mTimer;
-    private String url ="ws://172.18.69.141:8080/isInvited";
-    private Context inviteService;
+    private String url ="ws://172.18.69.141:8080/isAdded";
+    private Context addService;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -54,13 +48,13 @@ public class InviteService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
-        inviteService = this;
+        addService = this;
 
 
-        new PollingThread().start();
+        new SocketThread().start();
         return START_STICKY; //START_STICKY means our service should not be killed after our main activity has quitted.
     }
-    class PollingThread extends Thread {
+    class SocketThread extends Thread {
         @Override
         public void run() {
             initWsClient(url);
@@ -71,32 +65,26 @@ public class InviteService extends Service {
 
 
     //弹出Notification
-    private void showNotification(String name) {
+    private void showNotification(String inviter) {
         //Navigator to the new activity when click the notification title
-        try {
-            Intent i = new Intent(this, SelectActivity.class);
-            JSONObject inviteRes = new JSONObject(name);
-            ChatUtils.isIvited = true;
-            ChatUtils.friTitle = inviteRes.getString("title");
-            i.putExtra("friendName", inviteRes.getString("inviter"));
-            i.putExtra("from", "InviteService");
-            PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, i,
+        Intent i = new Intent(this, MainActivity.class);
+        i.putExtra("inviter", inviter);
+        i.putExtra("from", "AddService");
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, i,
                     PendingIntent.FLAG_UPDATE_CURRENT);
-            mNotification = new NotificationCompat
-                    .Builder(inviteService)
-                    .setTicker("邀请你进行交换")
-                    .setSmallIcon(R.mipmap.ic_launcher)
-                    .setContentTitle(ChatUtils.friend)
-                    .setContentText(ChatUtils.friTitle.substring(0, ChatUtils.friTitle.indexOf('.')))
-                    .setAutoCancel(true)
-                    .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
-                    .build();
-            mNotification.contentIntent = pendingIntent;
-            mManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-            mManager.notify(0, mNotification);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        mNotification = new NotificationCompat
+                .Builder(addService)
+                .setTicker("邀请你")
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setContentTitle(inviter)
+                .setContentText("添加你为好友")
+                .setAutoCancel(true)
+                .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
+                .build();
+        mNotification.contentIntent = pendingIntent;
+        mManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        mManager.notify(0, mNotification);
+
     }
 
     private void initWsClient(String wsUrl) {
@@ -127,9 +115,15 @@ public class InviteService extends Service {
             @Override
             public void onMessage(WebSocket webSocket, String text) {
                 //打印一些内容
-                System.out.println("client onMessage");
-                System.out.println("message:" + text);
-                showNotification(text);
+                try {
+                    System.out.println("client onMessage");
+                    System.out.println("message:" + text);
+                    JSONObject inviteRes = new JSONObject(text);
+                    String inviter = inviteRes.getString("inviter");
+                    showNotification(inviter);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
 
             @Override

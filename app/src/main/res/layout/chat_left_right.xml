@@ -33,7 +33,7 @@
         android:id="@+id/right_layout"
         android:layout_gravity="right"
         android:layout_marginTop="12dp"
-        android:padding="16dp"
+        android:padding="8dp"
         app:bl_arrowDirection="right"
         app:bl_arrowHeight="8dp"
         app:bl_arrowPosition="12dp"

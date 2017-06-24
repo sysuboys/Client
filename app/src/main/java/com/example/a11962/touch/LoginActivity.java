@@ -39,6 +39,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -374,13 +375,33 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 if (friends != null) {
                     JSONObject jsonObject = new JSONObject(friends);
                     String username = jsonObject.getString("username");
-                    editor.putString("username", username);
-                    Set<String> friends = new HashSet<>();
+                    String formerUser = preferences.getString("username", null);
                     JSONArray arr = jsonObject.getJSONArray("friends");
+                    Set<String> friends = new HashSet<>();
                     for (int i = 0; i < arr.length(); i++) {
                         String fri = (String)arr.get(i);
                         friends.add(fri);
                     }
+                    //删除前一个登录记录用户的日记文件
+                    if (formerUser != null && !formerUser.equals(username)) {
+                        //文件目录：内部存储文件路径/myDiary
+                        File myDiaryPath = new File(getFilesDir().getAbsolutePath()+File.separator+"myDiary" );
+                        File[] files = myDiaryPath.listFiles();
+                        //删除所有文件
+                        for(int i=0; i<files.length; i++) {
+                            files[i].delete();
+                        }
+                        editor.clear().commit();
+                        for (String single : friends) {
+                            getSharedPreferences(single, MODE_PRIVATE).edit().clear().commit();
+                        }
+
+                    }
+
+                    editor.putString("username", username);
+                    editor.putString("password", mPassword);
+
+
                     editor.putStringSet("friends", friends).commit();
 
                 }
